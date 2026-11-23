@@ -1,0 +1,44 @@
+{
+ "candidate": "cert_vi_h24k40.npz",
+ "c": 0.01,
+ "max_depth": 30,
+ "parts": {
+  "lemmas": {
+   "ok": true,
+   "rc": 0,
+   "seconds": 0,
+   "log": "certx_run_lemmas.out"
+  },
+  "T2": {
+   "ok": true,
+   "rc": 0,
+   "seconds": 0,
+   "log": "certx_run_T2.out"
+  },
+  "T3": {
+   "ok": true,
+   "rc": 0,
+   "seconds": 0,
+   "log": "certx_run_T3.out"
+  },
+  "R1x": {
+   "ok": true,
+   "rc": 0,
+   "seconds": 21,
+   "log": "certx_run_R1x.out"
+  },
+  "R2x": {
+   "ok": true,
+   "rc": 0,
+   "seconds": 104,
+   "log": "certx_run_R2x.out"
+  },
+  "R3": {
+   "ok": true,
+   "rc": 0,
+   "seconds": 53,
+   "log": "certx_run_R3.out"
+  }
+ },
+ "all_ok": true
+}

@@ -1,0 +1,20 @@
+  nan-control FAILED at max depth 2: cell [2.750000, 3.000000] x [2.000000, 3.000000] bound nan
+PASS C1 NaN cell fails (2-D)
+  nan-control-1d depth  0:       2 cells,      1 failing, min lower bound +nan  (0 s)
+  nan-control-1d depth  1:       2 cells,      2 failing, min lower bound +nan  (0 s)
+  nan-control-1d depth  2:       4 cells,      4 failing, min lower bound +nan  (0 s)
+  FAILED: worst cell [2.000000, 2.250000] bound nan
+PASS C1 NaN cell fails (1-D)
+PASS C2 slope_range raises on NaN
+PASS C2 Gnum_range raises on NaN
+PASS C2 slope_range raises on inf
+PASS C2 Gnum_range raises on inf
+PASS C2 slope_range raises on x=0.5 below the domain
+PASS C2 Gnum_range raises on x=0.5 below the domain
+  C3 true: 1 batches done, 0 queued, 30 cells evaluated so far, deepest level 4  (0 s)
+  C3 true VERIFIED: 8 initial cells, 30 cells evaluated, deepest level 4  (0 s)
+  C3 perturbed FAILED at max depth 12: cell [1.000000, 1.000088] x [4.999913, 5.000000] bound -2.996e+00
+PASS C3 true certificate passes the 8 cells at depth 12
+PASS C3 node 984 (x=6.0000) raised by 3: the same cells fail
+PASS C3 perturbed Phi at (1.000000, 5.000000) has upper bound -2.9952 < 0
+ctlrc=0

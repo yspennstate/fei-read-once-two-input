@@ -1,0 +1,11 @@
+certificate cert_vi_h24k40.npz: C0=6.4548000, 1801 nodes, K=40, c=0.01 -> C_cert = 6.4573000
+  sha256 2eead9d647909d66cddd2910b9299b5bc5e330b0e9e88d4f6d8fd69d31f91879 fei_cert.py
+  sha256 7936f571261bb38caee828168daff11750414d973423aa476eeafe6be16ff141 fei_cert23.py
+  sha256 c681ca7748741e61e5786e3e09c79262078d66d20ddb26e731228aafd879b107 fei_cert_r1x.py
+  sha256 5e7740d7f0150e018dab0febaca41b8cb8afa90212c3933c44b2ffb11a5a10f7 run_r2x.py
+  sha256 ddbd40fb96cd73aa8ccb5ca6ca481bea55aa596c2993644a213d2b7259810e11 cert_vi_h24k40.npz
+  region 2 (exact A): 2 batches done, 0 queued, 15825700 cells evaluated so far, deepest level 24  (104 s)
+  region 2 (exact A) VERIFIED: 3240000 initial cells, 15825700 cells evaluated, deepest level 24  (104 s)
+  domain clamps: 0 endpoints below xs[0], largest deficit 0.000e+00
+RESULTS: {'R2x': True}  (104 s)
+REGION 2 (exact A): VERIFIED at c=0.01 (C_cert = 6.4573000)

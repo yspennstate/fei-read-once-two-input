@@ -1,0 +1,16 @@
+certificate cert_vi_h24k40.npz: C0=6.4548000, 1801 nodes, K=40, c=0.01, tail slope 4.909600 -> C_cert = 6.4573000
+  sha256 2eead9d647909d66cddd2910b9299b5bc5e330b0e9e88d4f6d8fd69d31f91879 fei_cert.py
+  sha256 7936f571261bb38caee828168daff11750414d973423aa476eeafe6be16ff141 fei_cert23.py
+  sha256 c681ca7748741e61e5786e3e09c79262078d66d20ddb26e731228aafd879b107 fei_cert_r1x.py
+  sha256 5e7740d7f0150e018dab0febaca41b8cb8afa90212c3933c44b2ffb11a5a10f7 run_r2x.py
+  sha256 ddbd40fb96cd73aa8ccb5ca6ca481bea55aa596c2993644a213d2b7259810e11 cert_vi_h24k40.npz
+  |G_hat'| <= 30.085, |Psi'| <= 21.892 on (0,1/2]
+  T2 (p in tail, q <= 1/2) depth  0:    1800 cells,    972 failing, min lower bound -2.173e-01  (0 s)
+  T2 (p in tail, q <= 1/2) depth  1:    1944 cells,   1726 failing, min lower bound -1.039e-01  (0 s)
+  T2 (p in tail, q <= 1/2) depth  2:    3452 cells,   1405 failing, min lower bound -4.710e-02  (0 s)
+  T2 (p in tail, q <= 1/2) depth  3:    2810 cells,    106 failing, min lower bound -1.871e-02  (0 s)
+  T2 (p in tail, q <= 1/2) depth  4:     212 cells,     36 failing, min lower bound -4.511e-03  (0 s)
+  T2 (p in tail, q <= 1/2) depth  5:      72 cells,      0 failing, min lower bound +2.588e-03  (0 s)
+  domain clamps: 0 endpoints below xs[0], largest deficit 0.000e+00
+RESULTS: {'T2': True}
+PARTIAL: ['T2'] all true; the read-once conclusion needs every part

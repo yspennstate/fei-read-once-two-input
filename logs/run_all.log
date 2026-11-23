@@ -1,0 +1,24 @@
+accept_slopes.py: OK
+controls.py: OK
+ctl_straddle.py: OK
+exact_const.py: OK
+fei_cert.py: OK
+fei_cert23.py: OK
+fei_cert_r1x.py: OK
+run_cert_all_x.py: OK
+run_r2x.py: OK
+xor_break.py: OK
+xor_climb.py: OK
+xor_lemma_check.py: OK
+xor_premises.py: OK
+cert_vi_h24k40.npz: OK
+hashrc=0
+lemmas OK   rc=0  0s
+T2     OK   rc=0  0s
+T3     OK   rc=0  0s
+R1x    OK   rc=0  21s
+R2x    OK   rc=0  104s
+R3     OK   rc=0  53s
+{"lemmas": {"ok": true, "rc": 0, "seconds": 0, "log": "certx_run_lemmas.out"}, "T2": {"ok": true, "rc": 0, "seconds": 0, "log": "certx_run_T2.out"}, "T3": {"ok": true, "rc": 0, "seconds": 0, "log": "certx_run_T3.out"}, "R1x": {"ok": true, "rc": 0, "seconds": 21, "log": "certx_run_R1x.out"}, "R2x": {"ok": true, "rc": 0, "seconds": 104, "log": "certx_run_R2x.out"}, "R3": {"ok": true, "rc": 0, "seconds": 53, "log": "certx_run_R3.out"}}
+ALL SIX PARTS VERIFIED
+allrc=0

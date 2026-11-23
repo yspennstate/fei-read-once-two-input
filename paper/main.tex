@@ -1,0 +1,323 @@
+\documentclass[11pt]{amsart}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Ht}{\widetilde H}
+\newcommand{\It}{\widetilde I}
+\renewcommand{\Pr}{\operatorname{Pr}}
+
+\title{The Fourier entropy--influence constant of read-once formulas over two-input gates}
+\author{Yitzchak Shmalo}
+\address{Einstein Institute of Mathematics, The Hebrew University of Jerusalem, Jerusalem, Israel}
+\email{yitzchak.shmalo@gmail.com}
+\date{}
+
+\begin{document}
+
+\begin{abstract}
+For every read-once formula $f$ over gates of fan-in two, with negations, on independent uniform bits, the Fourier entropy and total influence satisfy $H(f)\le 6.4573\,I(f)$. Finite truncations of Hod's construction show that no constant below $6.4547837$ is possible for this class, so the sharp constant lies in an interval of length less than $0.0026$. We attach to each subformula $f$ the penalty $\Gamma(\Pr[f])$ for an explicit function $\Gamma$ of one variable and prove $H(f)+\Gamma(\Pr[f])\le 6.4573\,I(f)$ by induction on the formula. At an AND gate the induction step is an inequality in the two input probabilities alone; it is verified by a computer-assisted interval computation for $\Gamma(p)$ equal to $p$ times a piecewise linear function of $\log_2(1/p)$ plus a small correction. At a parity gate the step follows from the exact inequality $\Gamma(p+q-2pq)\le\Gamma(p)+\Gamma(q)$.
+\end{abstract}
+
+\maketitle
+
+% ---------------------------------------------------------------
+\section{Introduction}
+
+For $f\colon\{-1,1\}^n\to\{-1,1\}$ with Fourier expansion $f=\sum_{S\subseteq[n]}\hat f(S)\chi_S$, the spectral entropy and the total influence are
+\[
+H(f)=\sum_{S}\hat f(S)^2\log_2\frac{1}{\hat f(S)^2},\qquad I(f)=\sum_S |S|\,\hat f(S)^2 .
+\]
+The Fourier entropy--influence conjecture of Friedgut and Kalai \cite{FK96} asserts that $H(f)\le C\,I(f)$ for an absolute constant $C$. It is open in general. It is known for symmetric functions and read-once decision trees \cite{OWZ11}, and O'Donnell and Tan \cite{OT13} proved it for read-once formulas over any fixed finite set of gates, with a constant of order $2^{O(k)}$ for gates of arity $k$. For read-once formulas over gates of fan-in at most three, and over AND, OR and parity gates of any fan-in, the author proved the constant $2+4/\ln 2=7.7708\ldots$ in \cite[Corollaries 7.9 and 7.11]{Shm26}. On the other side, Hod \cite{Hod17} constructed read-once formulas over AND and OR whose ratio $H/I$ tends to
+\[
+\beta(1/2)=6.4547837\ldots,
+\]
+so no constant below $\beta(1/2)$ is possible for the conjecture.
+
+This paper determines the constant for read-once formulas over two-input gates to within $0.0026$.
+
+\begin{theorem}\label{thm:main}
+Let $f$ be a read-once formula over gates of fan-in two, with negations allowed on inputs and gates, evaluated on independent uniform bits. Then
+\[
+H(f)\le 6.4573\, I(f).
+\]
+Consequently the best constant $C_2$ for this class satisfies $6.4547837\le C_2\le 6.4573$.
+\end{theorem}
+
+The proof of the upper bound is computer-assisted: the interval computation takes $\log_2$, $\ln(1+t)$ and $2^{-t}$ from the numpy library and assumes that these are accurate to fewer than $8$ units in the last place on the arguments that occur (Section~\ref{sec:verification}).
+
+
+The lower bound is Hod's \cite[Theorem 4.4]{Hod17}. His functions are limits of read-once formulas over AND and OR. Truncating them gives finite formulas in the class: by the composition formula \cite[Lemma 3.1]{Hod17}, $\Pr$, $I$ and $H$ of a truncation are obtained by finitely many applications of continuous composition maps whose limits Hod computes \cite[Proposition 4.1]{Hod17}, so a suitable sequence of truncations has $H/I$ tending to his limit, which exceeds $6.4547837$. The argument of \cite{Shm26} cannot go below $2+4/\ln 2$. It bounds every gate by the same inequality, which compares $H^+$ with influence minus variance under all product measures, and that inequality is sharp at a single AND gate. Theorem~\ref{thm:main} compares $H$ with $I$ under the uniform measure only. The new ingredient is the penalty $\Gamma(\Pr[f])$ carried through the induction, which records how far a subformula is from tightness; with it the gate step becomes the one-variable inequality \eqref{eq:A} below, and no single gate has to meet the constant on its own.
+
+The proof has three parts. Section~\ref{sec:reduction} reduces the theorem for AND, OR and NOT to a functional inequality \eqref{eq:A} for a symmetric potential $\Gamma$ on $(0,1)$ with $\Gamma(1/2)\le C$. Section~\ref{sec:xor} shows that the potential used here is subadditive along the bias of a parity, which carries the induction through XOR gates; every two-input gate is, up to negations, a constant, a projection, an AND or an XOR. Sections~\ref{sec:certificate} and~\ref{sec:verification} describe the potential, $p$ times a piecewise linear function of $\log_2(1/p)$ with $1{,}801$ nodes plus a small correction, and the interval computation that verifies \eqref{eq:A} for it on the whole square.
+
+% ---------------------------------------------------------------
+\section{Composition and the reduction}\label{sec:reduction}
+
+We follow the notation of \cite{Hod17}. Truth is $-1$, $\Pr[f]$ is the probability that $f$ is true, $h$ is the binary entropy in bits, $\varphi(w)=w\log_2(1/w)$, and $V_p=4p(1-p)$ is the variance of a function with $\Pr=p$. For a non-constant $f$ put $I^+(f)=I(f)/V_{\Pr[f]}$ and $H^+(f)=(H(f)-h(V_{\Pr[f]}))/V_{\Pr[f]}$.
+
+Let $a$ and $b$ be Boolean functions on disjoint sets of variables with $\Pr[a]=p$ and $\Pr[b]=q$, and let $g=\mathrm{AND}(a,b)$. The composition lemma \cite[Proposition 3.2]{OT13}, \cite[Lemma 3.1]{Hod17} (for AND see also \cite[Proposition 2.8]{Hod17}), applied with the biased Fourier transform of AND at the biases $1-2p$ and $1-2q$, gives
+\begin{equation}\label{eq:comp}
+I(g)=\It_a I^+(a)+\It_b I^+(b),\qquad H(g)=\It_a H^+(a)+\It_b H^+(b)+\Ht_{\mathrm{AND}}(p,q),
+\end{equation}
+where
+\[
+\It_a=qV_p,\quad \It_b=pV_q,\quad w_\emptyset=(1-2pq)^2,\quad w_{ab}=w_\emptyset+\It_a+\It_b-1,
+\]
+\[
+\Ht_{\mathrm{AND}}(p,q)=\varphi(w_\emptyset)+\varphi(\It_a-w_{ab})+\varphi(\It_b-w_{ab})+\varphi(w_{ab}).
+\]
+In particular $I(g)=q\,I(a)+p\,I(b)$ and $\Pr[g]=pq$. Negating a function or any of its inputs changes neither $H$ nor $I$, and negating the function replaces $\Pr$ by $1-\Pr$. Hence $\mathrm{OR}(a,b)$ has the entropy and influence of $\mathrm{AND}(\bar a,\bar b)$ with $\Pr[\bar a]=1-p$, $\Pr[\bar b]=1-q$.
+
+\begin{proposition}\label{prop:reduction}
+Let $C>0$ and let $\Gamma\colon(0,1)\to[0,\infty)$ satisfy $\Gamma(p)=\Gamma(1-p)$ and, for all $p,q\in(0,1)$,
+\begin{equation}\label{eq:A}
+\Gamma(pq)\le q\bigl(\Gamma(p)+h(V_p)\bigr)+p\bigl(\Gamma(q)+h(V_q)\bigr)-\Ht_{\mathrm{AND}}(p,q).
+\end{equation}
+If $\Gamma(1/2)\le C$, then every read-once formula $f$ over AND, OR and NOT on independent uniform bits satisfies
+\begin{equation}\label{eq:inv}
+H(f)+\Gamma(\Pr[f])\le C\,I(f),
+\end{equation}
+and in particular $H(f)\le C\,I(f)$.
+\end{proposition}
+
+\begin{proof}
+Induction on the formula. A variable has $H=0$, $I=1$ and $\Pr=1/2$, and \eqref{eq:inv} reads $\Gamma(1/2)\le C$. NOT preserves $H$ and $I$ and maps $\Pr$ to $1-\Pr$; $\Gamma$ is symmetric. Let $g=\mathrm{AND}(a,b)$ and assume \eqref{eq:inv} for $a$ and $b$. Since $\It_a H^+(a)=q\bigl(H(a)-h(V_p)\bigr)$ and $\It_b H^+(b)=p\bigl(H(b)-h(V_q)\bigr)$, \eqref{eq:comp} gives
+\begin{align*}
+H(g)&=q\bigl(H(a)-h(V_p)\bigr)+p\bigl(H(b)-h(V_q)\bigr)+\Ht_{\mathrm{AND}}(p,q)\\
+&\le q\bigl(C I(a)-\Gamma(p)-h(V_p)\bigr)+p\bigl(C I(b)-\Gamma(q)-h(V_q)\bigr)+\Ht_{\mathrm{AND}}(p,q)\\
+&= C\,I(g)-\Bigl[q\bigl(\Gamma(p)+h(V_p)\bigr)+p\bigl(\Gamma(q)+h(V_q)\bigr)-\Ht_{\mathrm{AND}}(p,q)\Bigr]\\
+&\le C\,I(g)-\Gamma(pq),
+\end{align*}
+by \eqref{eq:A}. OR follows from AND applied to the negated inputs, using the symmetry of $\Gamma$. Since $\Gamma\ge0$, \eqref{eq:inv} implies $H\le CI$.
+\end{proof}
+
+\begin{remark}
+The constant $C$ does not appear in \eqref{eq:A}; it enters only through $\Gamma(1/2)\le C$. If \eqref{eq:A} is imposed only at the measures that read-once formulas realise, the extremal slack $\Sigma(p)=\inf\{C I(f)-H(f):\ \Pr[f]=p\}$ is admissible, and the least $C$ for which it is nonnegative is the sharp constant for AND, OR and NOT. Requiring \eqref{eq:A} for all real $p,q$ is a relaxation in the safe direction.
+\end{remark}
+
+\subsection*{Normalisation}
+For the verification it is convenient to divide \eqref{eq:A} by $pq$. Write $p=2^{-x}$, $G(p)=\Gamma(p)/p$, $L(z)=\log_2(1/z)$ and $\Psi(z)=\varphi\bigl((1-2z)^2\bigr)/z$. Expanding the four AND weights and the binary entropies $h(V_p)=\varphi(4p(1-p))+\varphi((1-2p)^2)$, every term in $\log_2(1-p)$ and $\log_2(1-q)$ cancels, and for all $p,q\in(0,1)$ the inequality \eqref{eq:A} becomes
+\begin{equation}\label{eq:Aprime}
+\Phi(p,q):=G(p)+G(q)-G(pq)-E(p,q)\ge0,
+\end{equation}
+\[
+E(p,q)=8p(1-q)L(p)+8q(1-p)L(q)+8(1-p)(1-q)+\Psi(pq)-\Psi(p)-\Psi(q).
+\]
+As $p,q\to0$, $E(p,q)\to b_*=8-4/\ln 2=2.2292\ldots$. For small $z$ we use the cancellation-free form $\Psi(z)=(4/\ln2)(1-2z)^2\ell(2z)$ with $\ell(u)=-\ln(1-u)/u$. Along the chain $\mathrm{AND}_k$ of $k$ variables, $\Pr=2^{-k}$ and $C I-H=\bigl(2k(C-4)+O(1)\bigr)2^{-k}$, and \eqref{eq:A} is tight to first order: both the $p\log(1/p)$ term and the constant term cancel. A certificate therefore cannot rely on an absolute margin near $p=0$, which is why the margin in Section~\ref{sec:certificate} is proportional to $p$.
+
+% ---------------------------------------------------------------
+\section{Parity gates}\label{sec:xor}
+
+Let $\Lambda$ be the piecewise linear function of $x=\log_2(1/p)$ described in Section~\ref{sec:certificate}: it interpolates $1{,}801$ stored binary64 nodes on $1\le x\le 40$, read as exact dyadic rationals, and continues linearly for $x>40$ with slope $\sigma$, the binary64 number nearest to $(\Lambda(40)-b_*)/40$; numerically $\sigma=4.9096$. Put $F(x)=\Lambda(x)+c(1-2^{-x})$, where $c$ is the binary64 number nearest to $0.01$, and for $0<p\le1/2$ define
+\[
+\Gamma_*(p)=p\,F\bigl(\log_2(1/p)\bigr),\qquad \Gamma_*(1-p)=\Gamma_*(p),\qquad \Gamma_*(0)=\Gamma_*(1)=0 .
+\]
+Then $\Gamma_*(p)=p\Lambda(\log_2(1/p))+cp(1-p)$ on $(0,1/2]$, and $\Gamma_*(1/2)=\Lambda(1)/2+c/4<6.4573$, a comparison of exact rationals (the difference is about $-3.5\cdot10^{-16}$). In the notation of Section~\ref{sec:reduction}, $\Gamma_*(p)/p=F(\log_2(1/p))$, so $G=F$ there, and since $(1-p)+(1-q)-(1-pq)=(1-p)(1-q)$, the left side of \eqref{eq:Aprime} for $F$ equals its value for $\Lambda$ plus $c(1-p)(1-q)$.
+
+\begin{lemma}\label{lem:xor}
+For all $p,q\in[0,1]$, $\Gamma_*(p+q-2pq)\le\Gamma_*(p)+\Gamma_*(q)$.
+\end{lemma}
+
+\begin{proof}
+Swapping $p$ and $q$, or replacing either by its complement, leaves $p+q-2pq$ fixed or replaces it by its complement, so it suffices to treat $0<q\le p\le1/2$. Put $r=p+(1-2p)q$; since $1/2-r=(1-2p)(1-2q)/2$, we have $p\le r\le 1/2$. Let $V(t)=F(\log_2(1/t))$, so that $\Gamma_*(t)=tV(t)$. The following facts are checked on the nodes in exact rational arithmetic: $V>12$ on $(0,1/2]$; $V(t)>37$ for $t<1/128$; exactly four affine pieces of $\Lambda$ have negative slope, and all of them lie in $x\le 4$, so $V$ is decreasing on $(0,1/16]$; and the largest decrease of $\Lambda$ from an abscissa to a later one is less than $0.055$. The correction $c(1-2^{-x})$ is increasing in $x$, so the same bound holds for $V$ with the variable reversed: $V(r)\le V(p)+0.055$ and $V(r)\le V(q)+0.055$.
+
+\emph{Case $p\le 1/32$.} Then $r\le p+q\le 2p\le 1/16$, and since $V$ is decreasing on $(0,1/16]$, $rV(r)\le pV(r)+qV(r)\le pV(p)+qV(q)$.
+
+\emph{Case $q\ge 1/128$.} Using $r=p+q-2pq$ and the two bounds on $V(r)$,
+\[
+\Gamma_*(p)+\Gamma_*(q)-\Gamma_*(r)\ge 2pq\,V(r)-0.055(p+q)>0,
+\]
+because $2pq/(p+q)\ge q\ge 1/128$ and $12/128>0.055$.
+
+\emph{Case $p>1/32$ and $q<1/128$.} Between breakpoints, $\frac{d}{dt}\Gamma_*(t)=\Lambda(x)-\Lambda'(x)/\ln 2+c(1-2t)$, and on $[1/32,1/2]$ this is at most $39$, as one checks on the affine pieces with $1\le x\le 5$ using $0.69<\ln 2<0.7$. Integrating,
+\[
+\Gamma_*(r)-\Gamma_*(p)\le 39\,(r-p)=39(1-2p)q\le\tfrac{15}{16}\cdot 39\,q<37q<\Gamma_*(q).
+\]
+The cases with $p$ or $q$ in $\{0,1\}$ follow by continuity.
+\end{proof}
+
+The first case uses that the negative slopes occur only for $x\le4$.
+
+\begin{corollary}\label{cor:xor}
+If $a$ and $b$ are Boolean functions on disjoint variables that satisfy \eqref{eq:inv} with $\Gamma=\Gamma_*$ and a constant $C$, then so does $a\oplus b$.
+\end{corollary}
+
+\begin{proof}
+In $\pm1$ notation $a\oplus b$ is the product $ab$. On disjoint variables its Fourier coefficients are the products $\hat a(S)\hat b(T)$, so $H(ab)=H(a)+H(b)$ and $I(ab)=I(a)+I(b)$, while $\Pr[ab]=p+q-2pq$. Lemma~\ref{lem:xor} gives $H(ab)+\Gamma_*(\Pr[ab])\le H(a)+\Gamma_*(p)+H(b)+\Gamma_*(q)\le C\,I(ab)$.
+\end{proof}
+
+Every Boolean function of two inputs is a constant, a projection or its negation, an AND up to negation of inputs and output, or a parity up to negation. A gate with a constant input computes a constant or a projection, up to negation, so constant gates can be removed one at a time without adding variables; if a constant reaches the output, $f$ is constant and there is nothing to prove. A projection discards a subformula, which only removes variables. Theorem~\ref{thm:main} therefore follows from Proposition~\ref{prop:reduction}, Corollary~\ref{cor:xor} and the statement, proved in Sections~\ref{sec:certificate} and~\ref{sec:verification}, that $\Gamma_*$ satisfies \eqref{eq:A}.
+
+\section{The certificate}\label{sec:certificate}
+
+It remains to prove that $\Gamma_*$ satisfies \eqref{eq:A}, that is, $\Phi\ge0$ on $(0,1)^2$ with $G(z)=\Gamma_*(z)/z$. The certificate is the file of nodes $1=x_0<x_1<\ldots<x_{1800}=K=40$ and values $\Lambda(x_j)$, with $\Lambda(x_0)=12.9096=2\cdot6.4548$ and $\Lambda(x_{1800})=198.6132\ldots$; the spacing grows from $0.0014$ at $x=1$. Four of the $1{,}800$ slopes are negative (Section~\ref{sec:xor}); on $[K-1,\infty)$ every slope is positive.
+
+\subsection*{Coordinates and the partition}
+For $p\le1/2$ write $p=2^{-x}$, and for $p>1/2$ write $u=1-p=2^{-x'}$; likewise $q=2^{-y}$ or $v=1-q=2^{-y'}$. All four coordinates are at least $1$. Since \eqref{eq:A} is symmetric in $p$ and $q$, it suffices to treat the three cases $p,q\le1/2$ with $x\le y$; $p\le1/2<q$; and $p,q>1/2$ with $u\le v$. These are covered by the following nine parts.
+\begin{enumerate}
+\item[R1.] $1\le x\le y\le K$.
+\item[T2.] $1\le x\le K<y$.
+\item[T1.] $K<x\le y$.
+\item[R2.] $1\le x\le K$ and $1\le y'\le K$.
+\item[T3.] $x>K$ and $1\le y'\le K$.
+\item[R2d.] $y'>K$, any $x\ge1$.
+\item[R3.] $1\le y'\le K$ and $y'\le x'\le K+20$.
+\item[R3d.] $1\le y'\le K$ and $x'>K+20$.
+\item[R3b.] $y'>K$, hence $x'\ge y'>K$.
+\end{enumerate}
+The parts R1, R2 and R3 are bounded and are checked by subdivision (Section~\ref{sec:verification}); in the other six one variable is beyond the last node, where $\Lambda$ is affine, and the inequality follows from the lemmas below, of which T2 and T3 are one-dimensional and are checked by subdivision in the remaining variable.
+
+\subsection*{The three normal forms}
+In R1 the quantity to bound is $\Phi(p,q)$ itself, with $G(p)=F(x)$, $G(q)=F(y)$ and $G(pq)=F(x+y)$. For $q>1/2$ the factor $1-q=v$ is small, and the cancellation between $G(p)$ and $G(pq)$ has to be made explicit. With $\lambda=\log_2\bigl(1/(1-v)\bigr)=v\,\ell(v)/\ln2$ and $pq=2^{-(x+\lambda)}$, the identity of Section~\ref{sec:reduction} gives, in R2, T3 and R2d,
+\begin{multline*}
+\frac{\Phi}{v}=\frac{F(x)-F(x+\lambda)}{v}+\frac{F(y')}{1-v}-8px-\frac{8(1-v)(1-p)\ell(v)}{\ln2}\\
+-8(1-p)-\frac{\Psi(p(1-v))-\Psi(p)}{v}+\frac{\Psi(1-v)}{v}.
+\end{multline*}
+For $p,q>1/2$ put $w=u+v-uv=1-pq$ and $\Lambda^\sharp(z)=\Gamma_*(1-z)/(1-z)=z\,F(\log_2(1/z))/(1-z)$ for $z\le1/2$. Then $G(pq)=\Lambda^\sharp(w)$ if $w\le1/2$ and $G(pq)=F(\log_2(1/(1-w)))$ otherwise, and with $\widetilde\Psi(z)=\Psi(1-z)$,
+\[
+\frac{\Phi}{u}=\frac{F(x')}{1-u}+\frac{\Lambda^\sharp(v)-G(pq)}{u}-\frac{E(1-u,1-v)}{u},
+\]
+\[
+\frac{E(1-u,1-v)}{u}=\frac{8(1-u)v\,\ell(u)}{\ln2}+\frac{8(1-v)v\,\ell(v)}{\ln2}+8v+\frac{\widetilde\Psi(w)-\widetilde\Psi(v)}{u}-\frac{\widetilde\Psi(u)}{u}.
+\]
+Differences such as $F(x)-F(x+\lambda)$ and $\Lambda^\sharp(v)-\Lambda^\sharp(w)$ are enclosed by the mean value theorem, $f(b)-f(a)=(b-a)f'(\xi)$, with $f'$ bounded over the cell; where the direct enclosure is better it is used instead. Both are rigorous, and the larger lower bound is kept.
+
+\subsection*{The parts beyond the last node}
+On $[K,\infty)$, $\Lambda(x)=b_t+\sigma x$ with $b_t=\Lambda(K)-\sigma K$, and $|b_t-b_*|$ is of the order of the rounding of $\sigma$.
+
+\begin{lemma}[T1]\label{lem:T1}
+If $p,q\le2^{-K}$, then $\Phi(p,q)\ge b_t-b_*+c(1-2^{-K})^2-(16K+19)2^{-K}>0$.
+\end{lemma}
+
+\begin{proof}
+In the tail $\Lambda(x)+\Lambda(y)-\Lambda(x+y)=b_t$, so by the remark after the definition of $\Gamma_*$, $\Phi=b_t+c(1-p)(1-q)-E(p,q)$. It remains to show $E(p,q)\le b_*+(16K+19)2^{-K}$. Since $t\mapsto t2^{-t}$ decreases for $t\ge1/\ln2$, $8p(1-q)L(p)+8q(1-p)L(q)\le16K2^{-K}$. Next $8(1-p)(1-q)\le8-8(p+q)+8pq$. For the entropy terms write $\Psi(z)=(4/\ln2)(1-2z)^2\ell(2z)$. Since $\ell(s)=1+s/2+s^2/3+\cdots$, we have $1+s/2\le\ell(s)$, and for $z\le1/16$ also $\ell(2z)\le1+z+2z^2$; hence $(1-2z)^2\ell(2z)\ge(1-4z+4z^2)(1+z)\ge1-3z$ and $(1-2z)^2\ell(2z)\le(1-4z+4z^2)(1+z+2z^2)\le1$ for $0<z\le1/16$. Therefore $\Psi(pq)\le4/\ln2$ and $\Psi(p)+\Psi(q)\ge(8/\ln2)-(12/\ln2)(p+q)$, and
+\[
+E(p,q)\le b_*+16K2^{-K}+\Bigl(\frac{12}{\ln2}-8\Bigr)(p+q)+8pq\le b_*+\bigl(16K+2(12/\ln2-8)+8\cdot2^{-K}\bigr)2^{-K},
+\]
+and $2(12/\ln2-8)+8\cdot2^{-K}<18.7$. The numerical value of the bound in the statement is $1.000\cdot10^{-2}$.
+\end{proof}
+
+The remaining lemmas use the following facts. The function $\ell$ is increasing on $[0,1)$, and $\ell(s)\le1/(1-s)$ and $0\le\ell'(s)\le(1-s)^{-2}$, since $\ell(s)=\int_0^1(1-ts)^{-1}\,dt$. The function $t\mapsto t2^{-t}$ is at most $1/(e\ln2)$ for $t\ge0$ and decreases for $t\ge1/\ln2$. The functions $\Psi$ and $\widetilde\Psi$ are nonnegative, and $(4/\ln2)(1-3z)\le\Psi(z)\le4/\ln2$ for $0<z\le1/16$, as shown in the proof of Lemma~\ref{lem:T1}. The slopes of $\Lambda$ on the pieces that meet $[K-1,\infty)$ are at least $m=3.146618$, so $F$ is increasing on $[K-1,\infty)$ with $F'\ge m$ there (one-sided derivatives at the nodes). Finally, four constants are upper bounds obtained by interval evaluation on a partition (Section~\ref{sec:verification}):
+\begin{itemize}
+\item $M_F=30.09$ bounds $|F'|$ on $[1,\infty)$;
+\item $M_\Psi=21.90$ bounds $|\Psi'|$ on $(0,1/2]$;
+\item $\widetilde M=18.95$ bounds $|\widetilde\Psi'|$ on $(0,3/4]$;
+\item $M_\sharp=199.0$ bounds $(\Lambda^\sharp)'$ from above on $[2^{-K-1},1/2]$.
+\end{itemize}
+
+\begin{lemma}[T2]\label{lem:T2}
+Let $p\le1/2$ with $1\le x\le K$, and let $q<2^{-K}$. Put $e(p)=8px+8(1-p)-\Psi(p)$. Then
+\[
+\Phi(p,q)\ge\tau_2(x)=\Lambda(x)-\sigma x-e(p)+c(1-2^{-K})(1-p)-8(1-p)K2^{-K}-\frac{12}{\ln2}2^{-K}.
+\]
+\end{lemma}
+
+\begin{proof}
+Since $y>K$ and $x+y>K$, $\Lambda(y)-\Lambda(x+y)=-\sigma x$, so $\Phi=\Lambda(x)-\sigma x+c(1-p)(1-q)-E(p,q)$, and $c(1-p)(1-q)\ge c(1-p)(1-2^{-K})$. From the definition of $E$,
+\[
+E(p,q)-e(p)=-8pqx+8q(1-p)L(q)-8q(1-p)+\Psi(pq)-\Psi(q).
+\]
+The first and third terms are negative. Since $qL(q)=y2^{-y}$ with $y>K>1/\ln2$, the second is at most $8(1-p)K2^{-K}$. Both $pq$ and $q$ are below $1/16$, so $\Psi(pq)-\Psi(q)\le(4/\ln2)-(4/\ln2)(1-3q)=12q/\ln2<(12/\ln2)2^{-K}$.
+\end{proof}
+
+\begin{lemma}[T3]\label{lem:T3}
+Let $x>K$ and $1\le y'\le K$. Then
+\[
+\frac{\Phi}{v}\ge\tau_3(y')=\frac{F(y')}{1-v}-\frac{\sigma\,\ell(v)}{\ln2}-\frac{8(1-v)\ell(v)}{\ln2}-8+\frac{\Psi(1-v)}{v}-2^{-K}(c+8K+M_\Psi).
+\]
+\end{lemma}
+
+\begin{proof}
+We bound the terms of the first normal form. Both $x$ and $x+\lambda$ exceed $K$, and $2^{-\lambda}=1-v$, so $F(x)-F(x+\lambda)=-\sigma\lambda+c(2^{-x-\lambda}-2^{-x})=-\sigma\lambda-cpv$; divided by $v$ this is $-\sigma\ell(v)/\ln2-cp$. Next $8px=8x2^{-x}<8K2^{-K}$, $8(1-v)(1-p)\ell(v)/\ln2\le8(1-v)\ell(v)/\ln2$ and $8(1-p)\le8$. By the mean value theorem $\Psi(p(1-v))-\Psi(p)=-pv\,\Psi'(\zeta)$ for some $\zeta\in(0,2^{-K})$, so $-[\Psi(p(1-v))-\Psi(p)]/v\ge-2^{-K}M_\Psi$. Collecting the terms and using $p<2^{-K}$ gives the bound.
+\end{proof}
+
+\begin{lemma}[R2d]\label{lem:R2d}
+If $p\le1/2$ and $y'>K$, then
+\[
+\frac{\Phi}{v}\ge F(K)-\frac{M_F\,\ell(2^{-K})}{\ln2}-\frac{8}{e\ln2}-\frac{8\,\ell(2^{-K})}{\ln2}-8-\frac{M_\Psi}{2}>120.
+\]
+\end{lemma}
+
+\begin{proof}
+Here $v<2^{-K}$. In the first normal form, $|F(x)-F(x+\lambda)|\le\lambda M_F=v\,\ell(v)M_F/\ln2$ and $\ell(v)\le\ell(2^{-K})$. Since $F$ increases on $[K,\infty)$, $F(y')/(1-v)\ge F(y')\ge F(K)>0$. Further $8px=8x2^{-x}\le8/(e\ln2)$, $8(1-v)(1-p)\ell(v)/\ln2\le8\ell(2^{-K})/\ln2$, $8(1-p)\le8$, and as in Lemma~\ref{lem:T3} $-[\Psi(p(1-v))-\Psi(p)]/v=p\Psi'(\zeta)\ge-M_\Psi/2$ with $\zeta\in(0,1/2]$. The last term $\Psi(1-v)/v$ is nonnegative.
+\end{proof}
+
+\begin{lemma}[R3d]\label{lem:R3d}
+If $1\le y'\le K$ and $x'>K+20$, then
+\[
+\frac{\Phi}{u}\ge F(K+20)-M_\sharp-\tfrac32M_F-\frac{4\,\ell(2^{-K-20})}{\ln2}-\frac{8\,\ell(1/2)}{\ln2}-4-\widetilde M>7.9.
+\]
+\end{lemma}
+
+\begin{proof}
+Here $u<2^{-K-20}$ and $2^{-K}\le v\le1/2$, and $F(x')/(1-u)\ge F(K+20)$. For the potential difference recall $w=v+u(1-v)$. If $w\le1/2$, then $G(pq)=\Lambda^\sharp(w)$ and $\Lambda^\sharp(v)-\Lambda^\sharp(w)=-u(1-v)(\Lambda^\sharp)'(\xi)$ with $\xi\in[v,w]$, so $[\Lambda^\sharp(v)-G(pq)]/u\ge-M_\sharp$. If $w>1/2$, then $G(pq)=F(L(pq))$ and $\Lambda^\sharp(1/2)=F(1)$, and we write $\Lambda^\sharp(v)-G(pq)=[\Lambda^\sharp(v)-\Lambda^\sharp(1/2)]+[F(1)-F(L(pq))]$. The first bracket is at least $-(1/2-v)M_\sharp\ge-uM_\sharp$, because $1/2-v<w-v\le u$. For the second, $pq\le1/2$ and $pq=(1-u)(1-v)\ge(1-u)/2$, so $0\le L(pq)-1\le\log_2(1/(1-u))=u\,\ell(u)/\ln2<\tfrac32u$, and the bracket is at least $-\tfrac32uM_F$. For the gate cost, in the displayed form of $E(1-u,1-v)/u$: $8(1-u)v\,\ell(u)/\ln2\le4\ell(2^{-K-20})/\ln2$ since $v\le1/2$; $8(1-v)v\,\ell(v)/\ln2\le8\ell(1/2)/\ln2$; $8v\le4$; $[\widetilde\Psi(w)-\widetilde\Psi(v)]/u=(1-v)\widetilde\Psi'(\xi)\le\widetilde M$ with $\xi\in[v,w]\subset(0,3/4)$; and $-\widetilde\Psi(u)/u\le0$.
+\end{proof}
+
+\begin{lemma}[R3b]\label{lem:R3b}
+Let $Y_0=\Lambda(K)+\sigma/(e\ln2)+c$. If $y'>K$ and $x'\ge y'$, then
+\[
+\frac{\Phi}{u}\ge\frac{m(1-2^{-K})}{\ln2}-2^{-K}(8Y_0+120)>4.539.
+\]
+\end{lemma}
+
+\begin{proof}
+Here $u\le v<2^{-K}$, and $w=u+v-uv\le2v\le1/2$, so $G(pq)=\Lambda^\sharp(w)$. Differentiating $\Lambda^\sharp(z)=zF(L(z))/(1-z)$ gives
+\[
+(\Lambda^\sharp)'(z)=\frac{F(L(z))}{(1-z)^2}-\frac{F'(L(z))}{(1-z)\ln2}.
+\]
+For $z\in[v,w]$ we have $L(z)\ge L(2v)=y'-1>K-1$, so $F'(L(z))\ge m$, and $F(L(z))\le F(y')=:Y$ because $F$ increases there. Hence $(\Lambda^\sharp)'(z)\le Y/(1-w)^2-m/\ln2$ on $[v,w]$, and since $w-v=u(1-v)$,
+\[
+\frac{\Lambda^\sharp(v)-\Lambda^\sharp(w)}{u}\ge-(1-v)\Bigl(\frac{Y}{(1-w)^2}-\frac{m}{\ln2}\Bigr).
+\]
+With $F(x')/(1-u)\ge F(x')\ge Y>0$ the potential terms of the second normal form are at least $Y\bigl(1-(1-2v)^{-2}\bigr)+(1-v)m/\ln2\ge(1-v)m/\ln2-8vY$, because $(1-2v)^2(1+8v)=1+4v-28v^2+32v^3\ge1$ for $v\le1/7$. Writing $y'=K+t$, $vY=2^{-K}\bigl(2^{-t}\Lambda(K)+\sigma t2^{-t}+c\,2^{-t}(1-2^{-y'})\bigr)\le2^{-K}Y_0$.
+
+For the gate cost, $\widetilde\Psi(z)=zC(z)$ with $C(z)=4(1-2z)^2\ell(2z)/\bigl((1-z)\ln2\bigr)\ge0$. On $[0,1/64]$, using $\ell(2z)\le32/31$, $\ell'(2z)\le(32/31)^2$ and $1/(1-z)\le64/63$ in
+\[
+C'(z)=\frac{4}{\ln2}\Bigl(-\frac{4(1-2z)\ell(2z)}{1-z}+\frac{2(1-2z)^2\ell'(2z)}{1-z}+\frac{(1-2z)^2\ell(2z)}{(1-z)^2}\Bigr)
+\]
+gives $|C'(z)|<43$. Now $[\widetilde\Psi(w)-\widetilde\Psi(v)-\widetilde\Psi(u)]/u=(1-v)C(w)-C(u)+(v/u)\bigl(C(w)-C(v)\bigr)$. The first two terms are at most $C(w)-C(u)<43(w-u)\le43v$, and $(v/u)(C(w)-C(v))=v(1-v)C'(\xi)<43v$. The other three terms of $E(1-u,1-v)/u$ are at most $16v\,\ell(2^{-K})/\ln2+8v<32v$. So the gate cost is below $118v<120\cdot2^{-K}$. The program uses the weaker bound $340\cdot2^{-K}$ in its place, so the margin it prints is smaller than the one this argument gives. Finally $m(1-v)/\ln2\ge m(1-2^{-K})/\ln2$.
+\end{proof}
+
+\section{Verification}\label{sec:verification}
+
+All bounds are computed in interval arithmetic on binary64 numbers. After every addition, subtraction, multiplication and division the lower endpoint is moved one unit in the last place down and the upper endpoint one unit up. The functions $\log_2$, $t\mapsto\ln(1+t)$ and $2^{-t}$ are taken from the numpy library (\texttt{log2}, \texttt{log1p}, \texttt{exp2}) and their results are widened by $8$ units in the last place. The proof assumes that these implementations are accurate to fewer than $8$ units in the last place on the arguments that occur. The node values and abscissae are exact binary64 numbers, and the slope of each affine piece of $\Lambda$ is enclosed by an interval that contains the exact rational quotient of the node differences. An interval that leaves the domain of a function makes the computation fail rather than be clipped, with one exception: an enclosure of $x$ (or $y$, $x'$, $y'$) that falls below $1$ by rounding is raised to $1$. This happened twice, by at most $8.9\cdot10^{-16}$, and both values are within the rounding of the cell endpoints. A cell whose bound is not a finite number is treated as failed.
+
+In R1, R2 and R3 the initial cells are the products of node intervals ($1{,}620{,}900$, $3{,}240{,}000$ and $1{,}656{,}900$ cells; in R3 the abscissa $x'$ also runs over the unit intervals from $K$ to $K+20$). On each cell a lower bound for the normal form is computed; a cell with a negative lower bound is split into four, and the process is repeated. Every cell eventually had a positive lower bound. The numbers of cells evaluated were $1{,}699{,}336$ (R1, deepest level $6$), $15{,}825{,}700$ (R2, level $24$) and $23{,}299{,}826$ (R3, level $28$). The one-dimensional checks T2 and T3 were refined in the same way; their smallest lower bounds are $2.588\cdot10^{-3}$ and $1.739\cdot10^{-3}$. The constants $m$, $M_F$, $M_\Psi$, $\widetilde M$ and $M_\sharp$ of Section~\ref{sec:certificate} are computed in the same arithmetic. The first two come from the exact slopes, and the other three from interval extensions. For $M_\Psi$ the extension of $\Psi'$ is evaluated on $[2^{-j-1},2^{-j}]$ for $2\le j\le59$, on $1999$ equal pieces of $[1/4,1/2]$ and on $[10^{-300},2^{-60}]$. For $\widetilde M$ the extension of $\widetilde\Psi'$ is evaluated on the two intervals $[10^{-300},2^{-60}]$ and $[2^{-60},3/4]$ only, so $\widetilde M$ is a crude bound. For $M_\sharp$ the extension of $(\Lambda^\sharp)'$ is evaluated on the images $\{2^{-x}:x\in[x_i,x_{i+1}]\}$ of the node intervals and on $\{2^{-x}:x\in[K,K+1]\}$. The program's values are $3.1466183\ldots$, $30.0853\ldots$, $21.892\ldots$, $18.944\ldots$ and $198.99\ldots$; the paper uses them rounded outward. The interval $(0,10^{-300})$ needs no enclosure. There $\Psi(z)=4(1-2z)^2\ell(2z)/\ln2$, and $1\le\ell(u)\le1+u$ and $1/2\le\ell'(u)\le1/2+2u$ for $0\le u\le1/2$ give $|\Psi'(z)+12/\ln2|\le64z/\ln2$, so $|\Psi'(z)|<17.32$ there, below $M_\Psi$. With $\widetilde\Psi=zC$ and $|C'|<43$ on $[0,1/64]$ (Lemma~\ref{lem:R3b}) one gets $|\widetilde\Psi'(z)-4/\ln2|<86z$, so $|\widetilde\Psi'(z)|<5.78$ there, below $\widetilde M$. With these constants the final inequalities in Lemmas~\ref{lem:T1}, \ref{lem:R2d}, \ref{lem:R3d} and~\ref{lem:R3b} are arithmetic on explicit numbers.
+
+\section*{Acknowledgements and funding}
+The research presented in this paper was supported by the European Research Council (ERC) under the European Union's Horizon Europe research and innovation programme (grant agreement No.~101041711), by the Simons Foundation as part of the Collaboration on the Mathematical and Scientific Foundations of Deep Learning, by Heights Labs, by Convex Nexus Capital, by the Israel Science Foundation (grant number 2258/19), and by the Israel Science Foundation (ISF Grant 4101/25).
+
+This work was done by multiple AI agents, Claude (Anthropic) and Codex (OpenAI), connected to Math Brain~\cite{MathBrainRepo} and working together inside the Brain framework~\cite{BrainFramework}. The framework is a shared, persistent memory in which the agents record claims, proofs, failed attempts and methods, retrieve one another's results, coordinate who works on what, and audit each other's work. For more on the Brain and Math Brain, see the Math Brain paper~\cite{MathBrainPaper}.
+
+\section*{Declaration of competing interest}
+The author holds equity in Heights Labs and in Convex Nexus Capital and has a management role at Convex Nexus Capital. These entities are included in the funding declaration above.
+
+\section*{Declaration of generative AI and AI-assisted technologies}
+The conjecture is Friedgut and Kalai's~\cite{FK96}; the composition formulas are O'Donnell and Tan's~\cite{OT13} in the form of Hod~\cite{Hod17}, and the reduction follows~\cite{Shm26}. AI agents connected to Math Brain computed the potential $\Lambda$ and the interval verifier for the AND inequality. A Codex agent (OpenAI) proved Lemma~\ref{lem:xor} in exact arithmetic and drafted the tail estimates. Claude Opus 5.5 agents (Anthropic), advised by Claude Fable 5.2, wrote out the tail lemmas, checked the constants and lemmas in interval arithmetic and the piece slopes exactly, and wrote the paper and code. These checks are not peer review; the author directed the work and is responsible for the content of the paper and for decisions concerning its dissemination.
+
+\section*{Data availability}
+\begin{sloppypar}
+The certificate file \texttt{cert\_vi\_h24k40.npz} (sha256 \texttt{ddbd40fb96cd73aa}\ldots), and the verification program, which also checks the constants and the tail lemmas, are at \url{https://github.com/yspennstate/fei-read-once-two-input/tree/v1.0}.
+\end{sloppypar}
+
+
+\begin{thebibliography}{9}
+\bibitem{FK96} E. Friedgut and G. Kalai, Every monotone graph property has a sharp threshold, \emph{Proc. Amer. Math. Soc.} 124 (1996), 2993--3002.
+\bibitem{Hod17} R. Hod, Improved lower bounds for the Fourier entropy/influence conjecture via lexicographic functions, arXiv:1711.00762, 2017.
+\bibitem{OT13} R. O'Donnell and L.-Y. Tan, A composition theorem for the Fourier entropy-influence conjecture, in \emph{ICALP 2013}, LNCS 7965, 780--791; arXiv:1304.1347.
+\bibitem{OWZ11} R. O'Donnell, J. Wright and Y. Zhou, The Fourier entropy-influence conjecture for certain classes of Boolean functions, in \emph{ICALP 2011}, LNCS 6755, 330--341.
+\bibitem{Shm26} Y. Shmalo, Fourier entropy of threshold functions and their compositions, Zenodo, doi:10.5281/zenodo.24440330, 2026.
+\bibitem{BrainFramework} Y. Shmalo, Brain Framework, public software repository, 2026, \url{https://github.com/yspennstate/brain-framework-public}.
+\bibitem{MathBrainRepo} Y. Shmalo, Math Brain: public snapshot, code and tests, 2026, \url{https://github.com/yspennstate/math-brain-public}.
+\bibitem{MathBrainPaper} Y. Shmalo, Math Brain: shared, auditable memory for multi-agent mathematical research, preprint, 2026, \url{https://github.com/yspennstate/math-brain-public/tree/main/papers/math-brain-2026-10-24}; Zenodo, doi:10.5281/zenodo.24150837.
+\end{thebibliography}
+
+\end{document}
